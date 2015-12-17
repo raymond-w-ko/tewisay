@@ -9,13 +9,13 @@ _arguments \
 	'(-b --border)'{-b,--border}'[Change border]: :->cowline' \
 	'(-l --list)'{-l,--list}'[List cowfiles]' \
 	'(-e --eyes)'{-e,--eyes}'[Select eyes]:eyes' \
-	'(-T --tongue)'{-T,--tounge}':[Select tongue]:tongue'
+	'(-t --tongue)'{-T,--tounge}':[Select tongue]:tongue'
 
 case "$state" in
 	(cowfile)
-		compadd ${=${(f)"$($service -l 2>/dev/null)"}:#*\:} || _files
+		compadd ${(f)"$($service -l 2>/dev/null)"} || _files
 		;;
 	(cowline)
-		compadd ${=${(f)"$($service -b list 2>/dev/null)"}:#*\:}
+		compadd ${(f)"$($service -b list 2>/dev/null)"}
 		;;
 esac
