@@ -241,6 +241,7 @@ func main() {
 	} else {
 		b, err := ioutil.ReadAll(os.Stdin)
 		handle(err)
+		b = bytes.TrimSuffix(b, []byte("\n"))
 		lines = strings.Split(string(b), "\n")
 	}
 
