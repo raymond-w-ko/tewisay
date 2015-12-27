@@ -144,7 +144,7 @@ func cowPath() []string {
 
 func readCow(name string) (string, error) {
 	// probably absolute path
-	if filepath.Ext(name) == ".cow" {
+	if strings.Contains(name, "/") || filepath.Ext(name) == ".cow" {
 		b, err := ioutil.ReadFile(name)
 		return string(b), err
 	}
