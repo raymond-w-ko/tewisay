@@ -161,7 +161,7 @@ func readCow(name string) (string, error) {
 	return "", fmt.Errorf("could not find cowfile: %s", name)
 }
 
-func listCows() error {
+func listCows() ([]string, error) {
 	l := []string{}
 	for _, cp := range cowPath() {
 		d, err := ioutil.ReadDir(cp)
@@ -169,7 +169,7 @@ func listCows() error {
 			continue
 		}
 		if err != nil {
-			return err
+			return nil, err
 		}
 		for _, f := range d {
 			if filepath.Ext(f.Name()) != ".cow" {
@@ -178,8 +178,7 @@ func listCows() error {
 			l = append(l, strings.TrimSuffix(f.Name(), ".cow"))
 		}
 	}
-	fmt.Println(strings.Join(l, " "))
-	return nil
+	return l, nil
 }
 
 func handle(err error) {
@@ -196,7 +195,8 @@ func main() {
 	}
 
 	var (
-		border = flag.StringP("border", "b", defBorder, "which border to use")
+		border = flag.StringP("border", "b", defBorder,
+			"which border to use (try list, preview)")
 		eyes   = flag.StringP("eyes", "e", "oo", "change eyes")
 		tongue = flag.StringP("tongue", "t", "  ", "change tongue")
 		list   = flag.BoolP("list", "l", false, "list cowfiles")
@@ -212,17 +212,28 @@ func main() {
 	flag.Parse()
 
 	if *list {
-		handle(listCows())
+		l, err := listCows()
+		handle(err)
+		fmt.Println(strings.Join(l, " "))
 		return
 	}
 
-	if *border == "list" {
+	if *border == "list" || *border == "preview" {
 		l := []string{}
 		for k := range borderStyles {
 			l = append(l, k)
 		}
 		sort.Strings(l)
-		fmt.Println(strings.Join(l, " "))
+		if *border == "list" {
+			fmt.Println(strings.Join(l, " "))
+			return
+		}
+		w := &bytes.Buffer{}
+		for _, b := range l {
+			handle(say(w, borderStyles[b], []string{b}))
+			fmt.Printf("%s\n    %s\n", w.String(), borderStyles[b][borderLine])
+			w.Reset()
+		}
 		return
 	}
 
